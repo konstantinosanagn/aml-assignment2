@@ -34,18 +34,18 @@ def train_mlp(X_train, y_train, params=None):
 def tune_mlp(X_train, y_train):
     """Hyperparameter search using RandomizedSearchCV.
 
-    Explores: hidden_layer_sizes, activation, learning_rate_init, alpha.
+    Explores: hidden_layer_sizes, activation, learning_rate_init, alpha, max_iter.
     """
     param_distributions = {
         "hidden_layer_sizes": [(64,), (128, 64), (256, 128, 64), (128,), (256, 128)],
         "activation": ["relu", "tanh"],
         "learning_rate_init": [0.001, 0.01, 0.1],
         "alpha": [0.0001, 0.001, 0.01],
+        "max_iter": [200, 500, 1000],
     }
 
     base_model = MLPClassifier(
         solver="adam",
-        max_iter=500,
         random_state=RANDOM_STATE,
         early_stopping=True,
         validation_fraction=0.1,
@@ -55,7 +55,7 @@ def tune_mlp(X_train, y_train):
     search = RandomizedSearchCV(
         base_model,
         param_distributions,
-        n_iter=20,
+        n_iter=30,
         scoring="f1",
         cv=3,
         random_state=RANDOM_STATE,
@@ -73,16 +73,34 @@ def tune_mlp(X_train, y_train):
 
 
 def plot_training_loss_curve(model):
-    """Plot MLP training loss curve from loss_curve_ attribute.
+    """Plot MLP training loss curve and validation score.
 
     Adam optimizer should show fast AND smooth convergence (L7).
+    Gap between training loss and validation score indicates overfitting (L4).
     """
     setup_plotting()
-    fig, ax = plt.subplots()
-    ax.plot(model.loss_curve_, linewidth=2, color="coral")
-    ax.set_xlabel("Iteration")
-    ax.set_ylabel("Cross-Entropy Loss")
-    ax.set_title("MLP: Training Loss Curve")
+    has_val_scores = hasattr(model, "validation_scores_") and model.validation_scores_ is not None
+
+    if has_val_scores:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+        # Training loss
+        axes[0].plot(model.loss_curve_, linewidth=2, color="coral")
+        axes[0].set_xlabel("Iteration")
+        axes[0].set_ylabel("Cross-Entropy Loss")
+        axes[0].set_title("MLP: Training Loss Curve")
+        # Validation score
+        axes[1].plot(model.validation_scores_, linewidth=2, color="steelblue")
+        axes[1].set_xlabel("Iteration")
+        axes[1].set_ylabel("Validation Score")
+        axes[1].set_title("MLP: Validation Score Over Training")
+        plt.tight_layout()
+    else:
+        fig, ax = plt.subplots()
+        ax.plot(model.loss_curve_, linewidth=2, color="coral")
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Cross-Entropy Loss")
+        ax.set_title("MLP: Training Loss Curve")
+
     save_figure(fig, "mlp_training_loss.png")
     plt.show()
     return fig
