@@ -23,6 +23,8 @@ def train_gbdt(X_train, y_train, X_val, y_val, params=None):
         "eval_metric": "logloss",
         "random_state": RANDOM_STATE,
         "use_label_encoder": False,
+        "tree_method": "hist",
+        "early_stopping_rounds": 20,
     }
     if params:
         default_params.update(params)
@@ -55,6 +57,7 @@ def tune_gbdt(X_train, y_train, X_val, y_val):
         eval_metric="logloss",
         random_state=RANDOM_STATE,
         use_label_encoder=False,
+        tree_method="hist",
     )
 
     search = RandomizedSearchCV(

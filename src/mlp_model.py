@@ -106,7 +106,7 @@ def plot_depth_width_comparison(X_train, y_train, X_val, y_val):
     loss_curves = {}
 
     for name, layers in architectures.items():
-        model = train_mlp(X_train, y_train, params={"hidden_layer_sizes": layers})
+        model = train_mlp(X_train, y_train, params={"hidden_layer_sizes": layers, "max_iter": 200})
         y_pred = model.predict(X_val)
         f1 = f1_score(y_val, y_pred)
         results[name] = f1
@@ -149,7 +149,7 @@ def plot_learning_rate_comparison(X_train, y_train, X_val, y_val):
 
     from sklearn.metrics import f1_score
     for lr in learning_rates:
-        model = train_mlp(X_train, y_train, params={"learning_rate_init": lr})
+        model = train_mlp(X_train, y_train, params={"learning_rate_init": lr, "max_iter": 200})
         ax.plot(model.loss_curve_, label=f"lr={lr}", linewidth=2)
         y_pred = model.predict(X_val)
         f1 = f1_score(y_val, y_pred)
