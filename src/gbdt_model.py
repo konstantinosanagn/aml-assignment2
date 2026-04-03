@@ -22,7 +22,6 @@ def train_gbdt(X_train, y_train, X_val, y_val, params=None):
         "scale_pos_weight": (y_train == 0).sum() / (y_train == 1).sum(),
         "eval_metric": "logloss",
         "random_state": RANDOM_STATE,
-        "use_label_encoder": False,
         "tree_method": "hist",
         "early_stopping_rounds": 20,
     }
@@ -56,7 +55,6 @@ def tune_gbdt(X_train, y_train, X_val, y_val):
         scale_pos_weight=(y_train == 0).sum() / (y_train == 1).sum(),
         eval_metric="logloss",
         random_state=RANDOM_STATE,
-        use_label_encoder=False,
         tree_method="hist",
     )
 
